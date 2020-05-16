@@ -1,6 +1,8 @@
 {
   "pages": [
-    "pages/index/index"
+    
+    "pages/map/map",
+    "pages/chartsData/index"
   ],
   "window": {
     "backgroundColor": "#F6F6F6",

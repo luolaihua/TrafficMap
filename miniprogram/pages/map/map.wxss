@@ -1,0 +1,7 @@
+/* miniprogram/pages/map/map.wxss */
+.showLocation{
+  position: fixed;
+  top: 10rpx;
+  left: 20rpx;
+  color: grey;
+}
