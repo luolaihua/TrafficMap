@@ -1,4 +1,5 @@
 // miniprogram/pages/map/map.js
+const myApi = require('../../utils/myApi')
 Page({
 
   /**
@@ -84,7 +85,7 @@ Page({
 
 
     wx.navigateTo({
-      url: '../chartsData/index?id='+id
+      url: '../chartsData/chartsData?id='+id
     })
   },
   tapMap(e){
@@ -98,7 +99,6 @@ Page({
    * 生命周期函数--监听页面加载
    */
   onLoad: function (options) {
-
   },
 
   /**
@@ -112,7 +112,28 @@ Page({
    * 生命周期函数--监听页面显示
    */
   onShow: function () {
-
+    setTimeout(() => {
+      var dataNameList = ['position1', 'position2']
+      var weekList = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+      if (wx.getStorageSync('position1' + '_week') == '') {
+        myApi.getCloudData('position1', 'week', '')
+      }
+      if (wx.getStorageSync('position2' + '_week') == '') {
+        myApi.getCloudData('position2', 'week', '')
+      }
+      dataNameList.forEach(item => {
+        weekList.forEach(item2 => {
+          if (wx.getStorageSync(item + '_day_' + item2) == '') {
+            try {
+               myApi.getCloudData(item, 'day', item2)
+            } catch (error) {
+              console.log(error)
+            }
+           
+          }
+        })
+      });
+    }, 10000);
   },
 
   /**

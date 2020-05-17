@@ -261,8 +261,6 @@ Page({
 
   data: {
     ec: {
-      //onInit: initChart
-      // 将 lazyLoad 设为 true 后，需要手动初始化图表
       lazyLoad: true
     },
     isBar: false,
@@ -356,16 +354,16 @@ Page({
       title: '加载中',
     })
     console.log(options)
-    this.data.id=options.id
-    var title= '一周车流量'
-    if(options.id=='111'){
-        title= '点位1'+title
-    }else{
-      title= '点位2'+title
+    this.data.id = options.id
+    var title = '一周车流量'
+    if (options.id == '111') {
+      title = '点位1' 
+    } else {
+      title = '点位2' 
     }
-     wx.setNavigationBarTitle({
-        title: title,
-      })
+    wx.setNavigationBarTitle({
+      title: title,
+    })
   },
   onReady() {
     var that = this
@@ -373,82 +371,94 @@ Page({
     this.ecComponent = this.selectComponent('#mychart-dom-bar');
     setTimeout(function () {
       wx.cloud.callFunction({
-        // 云函数名称
-        name: 'dataPro',
-        // 传给云函数的参数
-        data: {
-         id:that.data.id
-        },
-      })
-      .then(res => {
-        console.log(res.result)
-        if (res.result.length != 0) {
-          var option = {
-            /*     title: {
-                  text: '某点一周各类车型流量',
-                  left: 'center'
-                }, */
-            legend: {
-              data: ['sm_car', 's_truck', 'b_car', 'm_truck', 'b_truck', 'sb_truck', 'box_truck']
-            },
-            tooltip: {
-              show: true,
-              trigger: 'axis',
-              confine: true
-            },
-            grid: {
-              containLabel: true
-            },
-            xAxis: {
-              type: 'category'
-            },
-            yAxis: {
-              x: 'center',
-              type: 'value',
-              splitLine: {
-                lineStyle: {
-                  type: 'dashed'
-                }
-              }
-              // show: false
-            },
-            series: [{
-                smooth: true,
-                type: 'line'
-              },
-              {
-                smooth: true,
-                type: 'line'
-              },
-              {
-                smooth: true,
-                type: 'line'
-              },
-              {
-                smooth: true,
-                type: 'line'
-              },
-              {
-                smooth: true,
-                type: 'line'
-              },
-              {
-                smooth: true,
-                type: 'line'
-              }
-            ],
-            dataset: {
-              source: res.result
-            }
-          };
-          that.init(option)
-        }
-        wx.hideLoading({
-          complete: (res) => {},
+          // 云函数名称
+          name: 'dataPro',
+          // 传给云函数的参数
+          data: {
+            id: that.data.id
+          },
         })
-      })
-      .catch(console.error)
-      
+        .then(res => {
+          console.log(res.result)
+          if (res.result.length != 0) {
+            var option = {
+              /*     title: {
+                    text: '某点一周各类车型流量',
+                    left: 'center'
+                  }, */
+              legend: {
+                data: ['sm_car', 's_truck', 'b_car', 'm_truck', 'b_truck', 'sb_truck', 'box_truck']
+              },
+              tooltip: {
+                show: true,
+                trigger: 'axis',
+                confine: true
+              },
+              grid: {
+                containLabel: true
+              },
+              xAxis: {
+                type: 'category'
+              },
+              yAxis: {
+                x: 'center',
+                type: 'value',
+                splitLine: {
+                  lineStyle: {
+                    type: 'dashed'
+                  }
+                }
+                // show: false
+              },
+              dataZoom: [{
+                  type: 'slider',
+                  show: true,
+                  start: 1,
+                  end: 10
+                },
+                {
+                  type: 'inside',
+                  start: 1,
+                  end: 10
+                }
+              ],
+              series: [{
+                  smooth: true,
+                  type: 'line'
+                },
+                {
+                  smooth: true,
+                  type: 'line'
+                },
+                {
+                  smooth: true,
+                  type: 'line'
+                },
+                {
+                  smooth: true,
+                  type: 'line'
+                },
+                {
+                  smooth: true,
+                  type: 'line'
+                },
+                {
+                  smooth: true,
+                  type: 'line'
+                }
+              ],
+              dataset: {
+                source: res.result
+              }
+            };
+            that.init(option)
+          }
+          wx.hideLoading({
+            complete: (res) => {},
+          })
+        })
+        .catch(console.error)
+
     }, 500);
   },
   save() {
