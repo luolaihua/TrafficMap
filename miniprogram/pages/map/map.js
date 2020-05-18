@@ -26,7 +26,7 @@ Page({
     longitude: 120.28827667236328,
     latitude: 31.914357509494074,
     markers: [{
-      id: 111,
+      id: 1,
       longitude: 120.29454,
       latitude: 31.90735,
       callout: {
@@ -44,7 +44,7 @@ Page({
       rotate: 0,
       alpha: 1
     }, {
-      id: 222,
+      id: 2,
       longitude: 120.28432,
       latitude: 31.91919,
       callout: {
@@ -99,6 +99,9 @@ Page({
    * 生命周期函数--监听页面加载
    */
   onLoad: function (options) {
+     setTimeout(() => {
+      myApi.checkCloudData()
+    }, 4000); 
   },
 
   /**
@@ -112,28 +115,9 @@ Page({
    * 生命周期函数--监听页面显示
    */
   onShow: function () {
-    setTimeout(() => {
-      var dataNameList = ['position1', 'position2']
-      var weekList = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-      if (wx.getStorageSync('position1' + '_week') == '') {
-        myApi.getCloudData('position1', 'week', '')
-      }
-      if (wx.getStorageSync('position2' + '_week') == '') {
-        myApi.getCloudData('position2', 'week', '')
-      }
-      dataNameList.forEach(item => {
-        weekList.forEach(item2 => {
-          if (wx.getStorageSync(item + '_day_' + item2) == '') {
-            try {
-               myApi.getCloudData(item, 'day', item2)
-            } catch (error) {
-              console.log(error)
-            }
-           
-          }
-        })
-      });
-    }, 10000);
+     setTimeout(() => {
+      myApi.checkCloudData()
+    }, 6000); 
   },
 
   /**

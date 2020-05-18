@@ -1,8 +1,31 @@
 <!--index.wxml-->
 <view class="container" bindtouchstart="" bindtouchend="">
-  <ec-canvas wx:if="{{!isDisposed}}" id="mychart-dom-bar" canvas-id="mychart-bar" ec="{{ ec }}"></ec-canvas>
-  <button class="default" size="default" type="primary" bindtap = "changeStyle">
-    changeStyle
-  </button>
+	<ec-canvas
+	 id="mychart-week"
+	 canvas-id="mychart-bar"
+	 ec="{{ ec }}"
+	/>
+	<view class="op-box">
+		<view class="picker" bindtap="changeStyle">
+			{{isBar?'Bar':'Line'}}
+		</view>
+		<picker bindchange="chooseDay" value="{{defaultDay}}" range="{{dayList}}">
+			<view class="picker">
+				{{dayList[defaultDay]}}
+			</view>
+		</picker>
+		<picker bindchange="choosePrecision" value="{{defaultPrecision}}" range="{{precisionList}}">
+			<view class="picker">
+				{{precisionList[defaultPrecision]}}
+			</view>
+		</picker>
+	</view>
+
+	<ec-canvas
+	 id="mychart-day"
+	 canvas-id="mychart-day"
+	 ec="{{ ec }}"
+	/>
+
 </view>
 

@@ -1,5 +1,6 @@
 //index.js
 import * as echarts from '../../components/ec-canvas/echarts';
+const myApi = require('../../utils/myApi')
 const app = getApp()
 let chart = null;
 
@@ -256,20 +257,155 @@ function setOption(chart) {
   };
   chart.setOption(option);
 }
+const line = {
+  series: [{
+      smooth: true,
+      type: 'line'
+    },
+    {
+      smooth: true,
+      type: 'line'
+    },
+    {
+      smooth: true,
+      type: 'line'
+    },
+    {
+      smooth: true,
+      type: 'line'
+    },
+    {
+      smooth: true,
+      type: 'line'
+    },
+    {
+      smooth: true,
+      type: 'line'
+    }
+  ]
+}
+const bar = {
+  series: [{
+      type: 'bar'
+    },
+    {
+      type: 'bar'
+    },
+    {
+      type: 'bar'
+    },
+    {
+      type: 'bar'
+    },
+    {
+      type: 'bar'
+    },
+    {
+      type: 'bar'
+    }
+  ]
+}
 
 Page({
-
   data: {
+    precisionList: ['5mins', '10mins', '20mins', '40mins', '80mins', '160mins'],
+    dayList: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+    defaultDay: 0,
+    defaultPrecision: 0,
     ec: {
       lazyLoad: true
     },
     isBar: false,
-    isLoaded: false,
-    isDisposed: false
+    isShowDayData: false,
+    isShowWeekData: false,
+  },
+  /**
+   * 288*1=144*2=72*4=36*8=18*16=9*32
+   * @param {*} e 
+   */
+  choosePrecision(e) {
+    wx.showLoading({
+      title: '加载中',
+    });
+    var precision = Math.pow(2, Number(e.detail.value))
+    console.log(precision)
+    //选择的条目变
+    if (e.detail.value != this.data.defaultPrecision) {
+      var dayDataList = this.data.dayData
+      var newDayList = []
+      if (precision == 1) {
+        newDayList = dayDataList
+      } else {
+        var k=1
+        newDayList.push(dayDataList[0])
+        for (let i = 1; i < dayDataList.length; i += precision) {
+      
+          var sumList = []
+          for (let j = 0; j < dayDataList[0].length; j++) {
+            if (j == 0) {
+              sumList.push(k *precision)
+            } else {
+              var sum= dayDataList[i][j]
+              for (let m = 1; m < precision; m++) {            
+                sum = sum + dayDataList[i + m][j]
+              }
+              sumList.push(sum)
+            }
+
+          }
+          k++
+          newDayList.push(sumList)
+        }
+      }
+      console.log(newDayList)
+      this.chart_day.setOption({
+        dataset: {
+          source: newDayList
+        }
+      })
+
+      this.setData({
+        defaultPrecision: e.detail.value
+      }, () => {
+        wx.hideLoading()
+      })
+    } else {
+      wx.hideLoading()
+    }
+
+  },
+  async chooseDay(e) {
+    wx.showLoading({
+      title: '加载中',
+    });
+    var index = e.detail.value
+    if (index != this.data.defaultDay) {
+      console.log(index)
+      var data2 = wx.getStorageSync('position' + this.data.id + '_day_' + this.data.dayList[index])
+      if (data2 == '') {
+        data2 = await myApi.getCloudData('position' + this.data.id, 'day', this.data.dayList[index])
+        console.log(data2)
+      }
+      this.data.dayData = data2
+      this.chart_day.setOption({
+        dataset: {
+          source: data2
+        }
+      });
+      this.setData({
+        defaultPrecision: 0,
+        defaultDay: e.detail.value
+      }, () => {
+        wx.hideLoading()
+      })
+    } else {
+      wx.hideLoading()
+    }
+
   },
   // 点击按钮后初始化图表
-  init: function (option) {
-    this.ecComponent.init((canvas, width, height, dpr) => {
+  initWeekData: function (option) {
+    this.ecComponent_week.init((canvas, width, height, dpr) => {
       // 获取组件的 canvas、width、height 后的回调函数
       // 在这里初始化图表
       const chart = echarts.init(canvas, null, {
@@ -280,68 +416,46 @@ Page({
       chart.setOption(option);
 
       // 将图表实例绑定到 this 上，可以在其他成员函数（如 dispose）中访问
-      this.chart = chart;
+      this.chart_week = chart;
 
       this.setData({
-        isLoaded: true,
-        isDisposed: false
+        isShowWeekData: true
       });
 
       // 注意这里一定要返回 chart 实例，否则会影响事件处理等
       return chart;
     });
   },
+  // 点击按钮后初始化图表
+  initDayData: function (option) {
+    this.ecComponent_day.init((canvas, width, height, dpr) => {
+      // 获取组件的 canvas、width、height 后的回调函数
+      // 在这里初始化图表
+      const chart2 = echarts.init(canvas, null, {
+        width: width,
+        height: height,
+        devicePixelRatio: dpr // new
+      });
+      chart2.setOption(option);
+
+      // 将图表实例绑定到 this 上，可以在其他成员函数（如 dispose）中访问
+      this.chart_day = chart2;
+
+      this.setData({
+        isShowDayData: true
+      });
+
+      // 注意这里一定要返回 chart 实例，否则会影响事件处理等
+      return chart2;
+    });
+  },
   changeStyle() {
     if (this.data.isBar) {
-      this.chart.setOption({
-        series: [{
-            smooth: true,
-            type: 'line'
-          },
-          {
-            smooth: true,
-            type: 'line'
-          },
-          {
-            smooth: true,
-            type: 'line'
-          },
-          {
-            smooth: true,
-            type: 'line'
-          },
-          {
-            smooth: true,
-            type: 'line'
-          },
-          {
-            smooth: true,
-            type: 'line'
-          }
-        ]
-      });
+      this.chart_week.setOption(line);
+      this.chart_day.setOption(line);
     } else {
-      this.chart.setOption({
-        series: [{
-            type: 'bar'
-          },
-          {
-            type: 'bar'
-          },
-          {
-            type: 'bar'
-          },
-          {
-            type: 'bar'
-          },
-          {
-            type: 'bar'
-          },
-          {
-            type: 'bar'
-          }
-        ]
-      });
+      this.chart_week.setOption(bar);
+      this.chart_day.setOption(bar);
     }
     this.setData({
       isBar: !this.data.isBar
@@ -349,117 +463,187 @@ Page({
 
   },
   onLoad(options) {
-    var that = this
     wx.showLoading({
       title: '加载中',
-    })
-    console.log(options)
-    this.data.id = options.id
-    var title = '一周车流量'
-    if (options.id == '111') {
-      title = '点位1' 
+    });
+    var that = this
+    //console.log(options)
+    if (options.id == undefined || options.id == '') {
+      this.data.id = '1'
     } else {
-      title = '点位2' 
+      this.data.id = options.id
     }
     wx.setNavigationBarTitle({
-      title: title,
+      title: '点位' + this.data.id + "车流量",
     })
   },
-  onReady() {
+  async onReady() {
     var that = this
     // 获取组件
-    this.ecComponent = this.selectComponent('#mychart-dom-bar');
-    setTimeout(function () {
-      wx.cloud.callFunction({
-          // 云函数名称
-          name: 'dataPro',
-          // 传给云函数的参数
-          data: {
-            id: that.data.id
-          },
-        })
-        .then(res => {
-          console.log(res.result)
-          if (res.result.length != 0) {
-            var option = {
-              /*     title: {
-                    text: '某点一周各类车型流量',
-                    left: 'center'
-                  }, */
-              legend: {
-                data: ['sm_car', 's_truck', 'b_car', 'm_truck', 'b_truck', 'sb_truck', 'box_truck']
-              },
-              tooltip: {
-                show: true,
-                trigger: 'axis',
-                confine: true
-              },
-              grid: {
-                containLabel: true
-              },
-              xAxis: {
-                type: 'category'
-              },
-              yAxis: {
-                x: 'center',
-                type: 'value',
-                splitLine: {
-                  lineStyle: {
-                    type: 'dashed'
-                  }
-                }
-                // show: false
-              },
-              dataZoom: [{
-                  type: 'slider',
-                  show: true,
-                  start: 1,
-                  end: 10
-                },
-                {
-                  type: 'inside',
-                  start: 1,
-                  end: 10
-                }
-              ],
-              series: [{
-                  smooth: true,
-                  type: 'line'
-                },
-                {
-                  smooth: true,
-                  type: 'line'
-                },
-                {
-                  smooth: true,
-                  type: 'line'
-                },
-                {
-                  smooth: true,
-                  type: 'line'
-                },
-                {
-                  smooth: true,
-                  type: 'line'
-                },
-                {
-                  smooth: true,
-                  type: 'line'
-                }
-              ],
-              dataset: {
-                source: res.result
-              }
-            };
-            that.init(option)
+    this.ecComponent_week = this.selectComponent('#mychart-week');
+    this.ecComponent_day = this.selectComponent('#mychart-day');
+/*     if (this.data.id == '1') {
+      var data1 = wx.getStorageSync('position1_week')
+      var data2 = wx.getStorageSync('position1_day_Mon')
+    } else {
+      var data1 = wx.getStorageSync('position2_week')
+      var data2 = wx.getStorageSync('position2_day_Mon')
+    } */
+    var data1 = wx.getStorageSync('position'+this.data.id+'_week')
+    var data2 = wx.getStorageSync('position'+this.data.id+'_day_Mon')
+    if (data1 == '') {
+      data1 = await myApi.getCloudData('position' + this.data.id, 'week', '')
+      console.log(data1)
+    }
+    if (data2 == '') {
+      data2 = await myApi.getCloudData('position' + this.data.id, 'day', 'Mon')
+      console.log(data2)
+    }
+    this.data.dayData = data2
+    var initOption1 = {
+      legend: {
+        // data: ['sm_car', 's_truck', 'b_car', 'm_truck', 'b_truck', 'sb_truck', 'box_truck']
+      },
+      tooltip: {
+        show: true,
+        trigger: 'axis',
+        confine: true
+      },
+      grid: {
+        containLabel: true
+      },
+      xAxis: {
+        type: 'category'
+      },
+      yAxis: {
+        x: 'center',
+        type: 'value',
+        splitLine: {
+          lineStyle: {
+            type: 'dashed'
           }
-          wx.hideLoading({
-            complete: (res) => {},
-          })
-        })
-        .catch(console.error)
+        }
+        // show: false
+      },
+      dataZoom: [{
+          type: 'slider',
+          show: true
+        },
+        {
+          type: 'inside'
+        }
+      ],
+      series: [{
 
-    }, 500);
+          smooth: true,
+          type: 'line'
+        },
+        {
+
+          smooth: true,
+          type: 'line'
+        },
+        {
+
+          smooth: true,
+          type: 'line'
+        },
+        {
+
+          smooth: true,
+          type: 'line'
+        },
+        {
+
+          smooth: true,
+          type: 'line'
+        },
+        {
+
+          smooth: true,
+          type: 'line'
+        }
+      ],
+      dataset: {
+        source: data1
+      }
+    };
+    var initOption2 = {
+      legend: {
+        // data: ['sm_car', 's_truck', 'b_car', 'm_truck', 'b_truck', 'sb_truck', 'box_truck']
+      },
+      tooltip: {
+        show: true,
+        trigger: 'axis',
+        confine: true
+      },
+      grid: {
+        containLabel: true
+      },
+      xAxis: {
+        type: 'category'
+      },
+      yAxis: {
+        x: 'center',
+        type: 'value',
+        splitLine: {
+          lineStyle: {
+            type: 'dashed'
+          }
+        }
+        // show: false
+      },
+      dataZoom: [{
+          type: 'slider',
+          show: true,
+          start: 1,
+          end: 30
+        },
+        {
+          type: 'inside',
+          start: 1,
+          end: 30
+        }
+      ],
+      series: [{
+
+          smooth: true,
+          type: 'line'
+        },
+        {
+
+          smooth: true,
+          type: 'line'
+        },
+        {
+
+          smooth: true,
+          type: 'line'
+        },
+        {
+
+          smooth: true,
+          type: 'line'
+        },
+        {
+
+          smooth: true,
+          type: 'line'
+        },
+        {
+
+          smooth: true,
+          type: 'line'
+        }
+      ],
+      dataset: {
+        source: data2
+      }
+    };
+    that.initWeekData(initOption1)
+    that.initDayData(initOption2)
+
+    wx.hideLoading();
   },
   save() {
     const ecComponent = this.selectComponent('#mychart-dom-bar');

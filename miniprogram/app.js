@@ -15,50 +15,11 @@ App({
         traceUser: true,
       })
     }
-    var dataNameList = ['position1', 'position2']
-    var weekList = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-    if (wx.getStorageSync('position1' + '_week') == '') {
-      myApi.getCloudData('position1', 'week', '')
-    }
-    if (wx.getStorageSync('position2' + '_week') == '') {
-      myApi.getCloudData('position2', 'week', '')
-    }
-    dataNameList.forEach(item => {
-      weekList.forEach(item2 => {
-        if (wx.getStorageSync(item + '_day_' + item2) == '') {
-          try {
-             myApi.getCloudData(item, 'day', item2)
-          } catch (error) {
-            console.log(error)
-          }
-         
-        }
-      })
-    });
-
+    myApi.checkCloudData()
   },
-  onShow:function(){
-    setTimeout(() => {
-      var dataNameList = ['position1', 'position2']
-      var weekList = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-      if (wx.getStorageSync('position1' + '_week') == '') {
-        myApi.getCloudData('position1', 'week', '')
-      }
-      if (wx.getStorageSync('position2' + '_week') == '') {
-        myApi.getCloudData('position2', 'week', '')
-      }
-      dataNameList.forEach(item => {
-        weekList.forEach(item2 => {
-          if (wx.getStorageSync(item + '_day_' + item2) == '') {
-            try {
-               myApi.getCloudData(item, 'day', item2)
-            } catch (error) {
-              console.log(error)
-            }
-           
-          }
-        })
-      });
-    }, 6000);
+  onShow: function () {
+     setTimeout(() => {
+      myApi.checkCloudData()
+    }, 2000); 
   }
 })
