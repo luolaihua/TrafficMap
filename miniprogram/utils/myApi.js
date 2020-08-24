@@ -40,13 +40,20 @@ function processCloudData(res, requestDataType) {
             ['box_truck']
         ],
         idList = ['_id'],
-        sm_carList = ['sm_car'],
+/*         sm_carList = ['sm_car'],
         s_truckList = ['s_truck'],
         b_carList = ['b_car'],
         m_truckList = ['m_truck'],
         b_truckList = ['b_truck'],
         sb_truckList = ['sb_truck'],
-        box_truckList = ['box_truck']
+        box_truckList = ['box_truck'] */
+        sm_carList = ['中小客车'],
+        s_truckList = ['小货车'],
+        b_carList = ['大客车'],
+        m_truckList = ['中型货车'],
+        b_truckList = ['大型货车'],
+        sb_truckList = ['超大货车'],
+        box_truckList = ['箱型货车']
 
     //initDataList[0] = ['_id', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
     res.forEach(element => {

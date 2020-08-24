@@ -281,11 +281,18 @@ const line = {
     {
       smooth: true,
       type: 'line'
+    },
+    {
+      smooth: true,
+      type: 'line'
     }
   ]
 }
 const bar = {
   series: [{
+      type: 'bar'
+    },
+    {
       type: 'bar'
     },
     {
@@ -357,7 +364,8 @@ Page({
           newDayList.push(sumList)
         }
       }
-      console.log(newDayList)
+      //console.log(newDayList)
+      newDayList= this.proDayData(newDayList)
       this.chart_day.setOption({
         dataset: {
           source: newDayList
@@ -387,6 +395,7 @@ Page({
         console.log(data2)
       }
       this.data.dayData = data2
+      data2= this.proDayData(data2)
       this.chart_day.setOption({
         dataset: {
           source: data2
@@ -500,6 +509,7 @@ Page({
       console.log(data2)
     }
     this.data.dayData = data2
+   data2= this.proDayData(data2)
     var initOption1 = {
       legend: {
         // data: ['sm_car', 's_truck', 'b_car', 'm_truck', 'b_truck', 'sb_truck', 'box_truck']
@@ -534,6 +544,11 @@ Page({
         }
       ],
       series: [{
+
+          smooth: true,
+          type: 'line'
+        },
+        {
 
           smooth: true,
           type: 'line'
@@ -609,6 +624,10 @@ Page({
 
           smooth: true,
           type: 'line'
+        },{
+
+          smooth: true,
+          type: 'line'
         },
         {
 
@@ -644,6 +663,27 @@ Page({
     that.initDayData(initOption2)
 
     wx.hideLoading();
+  },
+  proDayData(data){
+    /**
+     * 时间编号1-288转到24进制时间
+     * @param {*时间编号} num 
+     */
+    function num2Date(num){
+     var totalMins = num*5
+     var hours =parseInt(totalMins/60) 
+     var mins = totalMins%60
+
+     hours = (hours<10?'0'+hours:hours)
+     mins = (mins<10?'0'+mins:mins)
+      return hours+':'+mins
+
+    }
+    for (let index = 1; index < data.length; index++) {
+      //data[index][0]=data[index][0]
+      data[index][0] =  num2Date(data[index][0])
+    }
+    return data
   },
   save() {
     const ecComponent = this.selectComponent('#mychart-dom-bar');
